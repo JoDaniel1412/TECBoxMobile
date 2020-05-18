@@ -1,7 +1,11 @@
 package com.example.tecboxmobile
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -27,7 +31,6 @@ class StorageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_storage)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -61,5 +64,13 @@ class StorageActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    fun signOut(item: MenuItem) {
+        mAuth.signOut()
+
+        // Switch to Log in activity if log in success
+        val i = Intent(applicationContext, MainActivity::class.java)
+        startActivity(i)
     }
 }
