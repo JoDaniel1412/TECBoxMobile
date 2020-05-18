@@ -1,5 +1,6 @@
 package com.example.tecboxmobile
 
+import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.TextView
@@ -35,6 +36,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateUI(user: FirebaseUser?) {
+        if (user == null) return
+        // Switch to next activity if log in success
+        val i = Intent(applicationContext, StorageActivity::class.java)
+        startActivity(i)
     }
 
     private fun createAccount(email: String, password: String) {
