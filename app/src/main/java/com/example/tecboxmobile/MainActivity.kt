@@ -18,12 +18,26 @@ class MainActivity : AppCompatActivity() {
     fun logInClick(event: View) {
         val email = findViewById<TextView>(R.id.email).text.toString()
         val password = findViewById<TextView>(R.id.password).text.toString()
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(
+                baseContext, "Email and password cant be empty.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
         logIn(email, password)
     }
 
     fun signInClick(event: View) {
         val email = findViewById<TextView>(R.id.email).text.toString()
         val password = findViewById<TextView>(R.id.password).text.toString()
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(
+                baseContext, "Email and password cant be empty.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
         createAccount(email, password)
     }
 
@@ -56,8 +70,8 @@ class MainActivity : AppCompatActivity() {
                         task.exception
                     )
                     Toast.makeText(
-                        baseContext, "Authentication failed.",
-                        Toast.LENGTH_SHORT
+                        baseContext, task.exception?.message,
+                        Toast.LENGTH_LONG
                     ).show()
                     updateUI(null)
                 }
@@ -77,8 +91,8 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure", task.exception)
-                    Toast.makeText(baseContext, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
+                    Toast.makeText(baseContext, task.exception?.message,
+                        Toast.LENGTH_LONG).show()
                     updateUI(null)
                 }
             }
