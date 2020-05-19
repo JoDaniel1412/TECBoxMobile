@@ -1,11 +1,14 @@
 package com.example.tecboxmobile
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
+import android.widget.Button
+import android.widget.TableLayout
+import android.widget.TableRow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -15,15 +18,23 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.preference.PreferenceManager
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.Volley
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import org.json.JSONArray
+
 
 class StorageActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private val mAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val TAG = "SERVER"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +76,12 @@ class StorageActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
+    override fun onStart() {
+        super.onStart()
+        requestStorage()
+    }
+
+
     fun signOut(item: MenuItem) {
         mAuth.signOut()
 
@@ -77,5 +94,61 @@ class StorageActivity : AppCompatActivity() {
         // Switch to settings activity if log in success
         val i = Intent(applicationContext, SettingsActivity::class.java)
         startActivity(i)
+    }
+    
+    private fun requestStorage() {
+        // Instantiate the RequestQueue.
+        val queue = Volley.newRequestQueue(this)
+
+        // Set http url
+        val pref = PreferenceManager.getDefaultSharedPreferences(this)
+        val ip = pref.getString("ip", "localhost")
+        val port = pref.getString("port", "8080")
+        val url = "http://$ip:$port/api/package"
+
+        // Instantiate string request
+        val jsonObjectRequest = JsonArrayRequest(Request.Method.GET, url, null,
+            Response.Listener { response ->
+                fillPackageView(response)
+            },
+            Response.ErrorListener { error ->
+                Log.e(TAG, error.toString())
+            }
+        )
+
+        // Add the request to the RequestQueue.
+        queue.add(jsonObjectRequest)
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun fillPackageView(json: JSONArray) {
+        val packageView : TableLayout = findViewById(R.id.package_view)
+        for (i in 0 until json.length()) {
+            val pack = json.getJSONObject(i)
+            val routeId = pack.getString("RouteId")
+            val trackingId = pack.getString("TrackingId")
+            val billId = pack.getString("BillId")
+            val state = pack.getString("State")
+
+            // Instantiate columns views
+            val row = TableRow(this)
+            val textID = TextView(this)
+            val textTracking = TextView(this)
+            val textBill = TextView(this)
+            val textState = TextView(this)
+
+            // Text value assignation
+            textID.text = routeId
+            textTracking.text = trackingId
+            textBill.text = billId
+            textState.text = state
+
+            // Added columns to hierarchy
+            row.addView(textID)
+            row.addView(textTracking)
+            row.addView(textBill)
+            row.addView(textState)
+            packageView.addView(row)
+        }
     }
 }
